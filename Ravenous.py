@@ -21,7 +21,7 @@ def menueventprocess():
                 menu = False
                 setting = True
 def settingeventprocess():
-    global menu , setting
+    global menu , setting, easy, medium, hard
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
@@ -29,9 +29,25 @@ def settingeventprocess():
             if event.key == pygame.K_ESCAPE:
                 setting = False
                 menu = True
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            MOUSE_X,MOUSE_Y = pygame.mouse.get_pos()
+            if MOUSE_X >= 150 and MOUSE_X <= 350 and MOUSE_Y >= 37 and MOUSE_Y <= 97:
+                easy = True
+                medium = False
+                hard = False
+            if MOUSE_X >= 150 and MOUSE_X <= 350 and MOUSE_Y >= 137 and MOUSE_Y <= 197:
+                easy = False
+                medium = True
+                hard = False
+            if MOUSE_X >= 150 and MOUSE_X <= 350 and MOUSE_Y >= 237 and MOUSE_Y <= 297:
+                easy = False
+                medium = False
+                hard = True
+
 
 
 def eventprocess():
+    global easy, medium, hard
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -51,7 +67,8 @@ def eventprocess():
             if event.key == pygame.K_SPACE:
                 redo()
             if event.key == pygame.K_e:
-                makefireball()
+                if easy == True:
+                    makefireball()
         if event.type == pygame.KEYUP:
             move.x = 0
             move.y = 0
@@ -75,7 +92,7 @@ def personmovement():
 
 def delay():
     global delaytime
-    if delaytime > 5:
+    if delaytime > 10:
         delaytime = 0
         return True
     delaytime += 1
@@ -92,27 +109,53 @@ def makerain():
             rain[index].y = 0
 
 def rainmovement():
+    global speed
     makerain()
     for i in range(len(water)):
         if rain[i].y == -1:
             continue
         if not end:
-            rain[i].y += 1
+            rain[i].y += speed
         if rain[i].y > screensize:
             rain[i].y = 0
 
         screen.blit(water[i],rain[i])
 
 def makeitem():
-    global itemfire
-
-    items = ['fire', 'umbrella',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    if end:
+    if end or itemout == True:
         return
+    if Item.y == -40:
+        Item.x = random.randint(0,screensize)
+        Item.y =0
 
-
+def itemmovement():
+    global items, itemout, getitem
+    if not end:
+        if Item.y > screensize:
+            getitem = 0
+            itemout = False
+        if itemout == False and Item.y < 0 and getitem != 'fire':
+            items = ['fire',
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            getitem = random.choice(items)
+        if getitem == 'fire':
+            makeitem()
+            Item.y += 1
+            itemout = True
+            if Item.y > screensize:
+                Item.y = -40
+                itemout = False
+                getitem = 0
+        screen.blit(item,Item)
 
 
 fire = pygame.image.load("fireball.jpg")
@@ -121,12 +164,11 @@ Fire = fire.get_rect()
 Fire.y = -1
 
 def makefireball():
-    if end:
+    if end or easy == False:
         return
     if Fire.y == -40:
         Fire.x = Person.x
         Fire.y = Person.y
-
 
 def fireball():
     if not end:
@@ -134,6 +176,7 @@ def fireball():
         if Fire.y < 0:
             Fire.y = -40
     screen.blit(fire,Fire)
+
 def fireraincollision():
     global end
     if end:
@@ -141,7 +184,6 @@ def fireraincollision():
     for area in rain:
         if area == -1:
             continue
-
         if area.top < Fire.bottom and Fire.top < area.bottom and area.left < Fire.right and area.right > Fire.left:
             area.y = -1
             Fire.y = -40
@@ -163,10 +205,33 @@ def personraincollision():
 def text():
     font = pygame.font.SysFont("OCR",20,True,False)
     screen.blit(font.render(f'score : {score}',True,'blue'),(10,10,0,0))
-
     if end and blink():
         screen.blit(font.render("GAME OVER" , True , 'dark red'),(205,300,0,0))
         screen.blit(font.render("[SPACE] to Play Again" , True , 'dark red'),(170,320,0,0))
+
+def settingoptions():
+    global easy,medium,hard,color1,color2,color3
+    screen.fill((50,50,50))
+    if easy == True:
+        color1 = chosen
+        color2 = gray
+        color3 = gray
+    if medium == True:
+        color1 = gray
+        color2 = chosen
+        color3 = gray
+    if hard == True:
+        color1 = gray
+        color2 = gray
+        color3 = chosen
+    screen.blit(color1,(150,37))
+    screen.blit(color2,(150,137))
+    screen.blit(color3,(150,237))
+    screen.blit(text1,((screensize - text1.get_width())//2, 50))
+    screen.blit(text2,((screensize - text1.get_width())//2, 150))
+    screen.blit(text3,((screensize - text1.get_width())//2, 250))
+
+
 
 def blink():
     global delaytime2, blinking
@@ -202,6 +267,18 @@ end = False
 itemFire = False
 setting = False
 menu = True
+easy = True
+medium = False
+hard = False
+speed = 1
+itemout = False
+getitem = ''
+
+###############################################################
+font = pygame.font.SysFont("OCR",50, True, False)
+text1 = font.render("Lv.1",True, "green")
+text2 = font.render("Lv.2",True, "blue")
+text3 = font.render("Lv.3",True, "red")
 
 ###############################################################
 person = pygame.image.load("person.png")
@@ -219,13 +296,17 @@ for i in range(len(water)):
     rain[i] = water[i].get_rect()
     rain[i].y = -1
 
+item = pygame.image.load("item.png")
+Item = item.get_rect()
+Item.y = -40
 menubackground = pygame.image.load("menu.png")
 start = pygame.image.load("start.png")
 level = pygame.image.load("level.png")
-print("haha")
-
-
-
+gray = pygame.image.load("gray.png")
+chosen = pygame.image.load("chosen.png")
+color1 = chosen
+color2 = gray
+color3 = gray
 
 
 
@@ -240,6 +321,7 @@ while True:
 
     while setting == True:
         screen.fill((225,225,225))
+        settingoptions()
         settingeventprocess()
         pygame.display.flip()
     while playing == True:
@@ -247,6 +329,7 @@ while True:
         eventprocess()
         personmovement()
         rainmovement()
+        itemmovement()
         fireball()
         fireraincollision()
         personraincollision()
