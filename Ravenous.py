@@ -1,5 +1,5 @@
 import pygame,random, sys
-from pygame import Rect
+from pygame import Rect, mixer
 
 ############################################################### eventprocess
 def menueventprocess():
@@ -19,8 +19,9 @@ def menueventprocess():
                 menu = False
                 description = True
 
+
 def settingeventprocess():
-    global menu , setting, easy, medium, hard
+    global menu , setting, easy, medium, hard, music
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
@@ -42,6 +43,12 @@ def settingeventprocess():
                 easy = False
                 medium = False
                 hard = True
+            if MOUSE_X >= 45 and MOUSE_X <= 245 and MOUSE_Y >= 337 and MOUSE_Y <= 397:
+                music = True
+                mixer.music.play()
+            if MOUSE_X >= 225 and MOUSE_X <= 425 and MOUSE_Y >= 337 and MOUSE_Y <= 397:
+                music = False
+                mixer.music.stop()
 
 def descriptioneventprocess():
     global menu, setting, description
@@ -73,7 +80,8 @@ def eventprocess():
             if event.key == pygame.K_DOWN:
                 move.y = 2
             if event.key == pygame.K_SPACE:
-                redo()
+                if end:
+                    redo()
             if event.key == pygame.K_e:
                 if easy == True or gaineditem > 0:
                     makefireball()
@@ -85,7 +93,7 @@ def eventprocess():
 
 ############################################################### display
 def settingoptions():
-    global easy,medium,hard,color1,color2,color3
+    global easy,medium,hard,color1,color2,color3, musicoff, musicon
     screen.fill((50,50,50))
     if easy == True:
         color1 = chosen
@@ -99,13 +107,34 @@ def settingoptions():
         color1 = gray
         color2 = gray
         color3 = chosen
+    if music == True:
+        musicon = chosen
+        musicoff = gray
+    if music == False:
+        musicoff = chosen
+        musicon = gray
     screen.blit(color1,(150,37))
     screen.blit(color2,(150,137))
     screen.blit(color3,(150,237))
+    screen.blit(musicon,(45,337))
+    screen.blit(musicoff,(255,337))
     screen.blit(text1,((screensize - text1.get_width())//2, 50))
     screen.blit(text2,((screensize - text1.get_width())//2, 150))
     screen.blit(text3,((screensize - text1.get_width())//2, 250))
+    screen.blit(text4,(screensize/2-gray.get_width()+5, 350))
+    screen.blit(text5,(screensize-gray.get_width()-35, 350))
 
+def explaining():
+    screen.blit(up,(61,10))
+    screen.blit(down,(61,61))
+    screen.blit(right,(112,61))
+    screen.blit(left,(10,61))
+    screen.blit(E,(61,160))
+    screen.blit(esc,(61,260))
+
+    screen.blit(text6,(185,77))
+    screen.blit(text7,(185,275))
+    screen.blit(text8,(185,175))
 
 ############################################################### sprite
 def personmovement():
@@ -191,6 +220,7 @@ def fireball():
         if Fire.y < 0:
             Fire.y = -40
     screen.blit(fire,Fire)
+
 
 
 ############################################################### collision
@@ -294,14 +324,22 @@ itemout = False
 getitem = ''
 gaineditem = 0
 description = False
-
+music = True
 
 ############################################################### font stuff
 font = pygame.font.SysFont("terminal",50,True,False)
 text1 = font.render("Lv.1",True, "green")
 text2 = font.render("Lv.2",True, "blue")
 text3 = font.render("Lv.3",True, "red")
+text4 = font.render("Music On",True,"Black")
+text5 = font.render("Music Off",True,"black")
+#bauhaus93 28
+#script 30
 
+font2 = pygame.font.SysFont("bauhaus93",28,False,False)
+text6 = font2.render("Arrows to Move",True,"Black")
+text7 = font2.render("ESC to Go Back to Menu",True,"Black")
+text8 = font2.render("E to Fire Fireball",True,"Black")
 
 ############################################################### image load stuff
 person = pygame.image.load("person.png")
@@ -336,9 +374,23 @@ chosen = pygame.image.load("chosen.png")
 color1 = chosen
 color2 = gray
 color3 = gray
+musicoff = gray
+musicon = chosen
 charge1 = pygame.image.load("slot.png")
 charge2 = pygame.image.load("slot.png")
 howtoplay = pygame.image.load("howtoplay.png")
+up = pygame.image.load("up.png")
+down = pygame.image.load("down.png")
+right = pygame.image.load("right.png")
+left = pygame.image.load("left.png")
+esc = pygame.image.load("esc.png")
+E = pygame.image.load("E.png")
+
+############################################################### music
+mixer.init()
+mixer.music.load("(MADE) JUST BEFORE THE EXAM.wav")
+mixer.music.play(-1)
+
 
 ############################################################### game loop
 while True:
@@ -356,6 +408,7 @@ while True:
         pygame.display.flip()
     while description == True:
         screen.fill((200,200,200))
+        explaining()
         descriptioneventprocess()
         pygame.display.flip()
     while playing == True:
