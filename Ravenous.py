@@ -59,6 +59,7 @@ def descriptioneventprocess():
             if event.key == pygame.K_ESCAPE:
                 description = False
                 menu = True
+                pageflip = False
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             MOUSE_X,MOUSE_Y = pygame.mouse.get_pos()
             if MOUSE_X >= screensize-70 and MOUSE_X <= screensize and MOUSE_Y >= screensize-70 and MOUSE_Y <= screensize:
@@ -95,8 +96,9 @@ def eventprocess():
                     redo()
             if event.key == pygame.K_e:
                 if easy == True or gaineditem > 0:
-                    makefireball()
-                    gaineditem -=1
+                    if fireout == False:
+                        makefireball()
+                        gaineditem -= 1
         if event.type == pygame.KEYUP:
             move.x = 0
             move.y = 0
@@ -262,10 +264,13 @@ def makefireball():
         Fire.y = Person.y
 
 def fireball():
+    global fireout
     if not end:
         Fire.y -= 1
+        fireout = True
         if Fire.y < 0:
             Fire.y = -40
+            fireout = False
     screen.blit(fire,Fire)
 
 
@@ -300,14 +305,12 @@ def personraincollision():
         if area == -1:
             continue
         if area.top < Person.bottom and Person.top < area.bottom and area.left < Person.right and area.right > Person.left:
-            print("OOPS")
             end = True
             break
     for area in rain2:
         if area == -1:
             continue
         if area.top < Person.bottom and Person.top < area.bottom and area.left < Person.right and area.right > Person.left:
-            print("OOPS")
             end = True
             break
 
@@ -332,12 +335,29 @@ def delay():
     return False
 
 def text():
+    global easybestscore, mediumbestscore, hardbestscore
     screen.blit(font.render(f'score : {score}',True,'blue'),(10,10,0,0))
+    if easy == True:
+        screen.blit(font.render(f'bestscore :{easybestscore}',True,'blue'),(10,40,0,0))
+    if medium == True:
+        screen.blit(font.render(f'bestscore :{mediumbestscore}',True,'blue'),(10,40,0,0))
+    if hard == True:
+        screen.blit(font.render(f'bestscore :{hardbestscore}',True,'blue'),(10,40,0,0))
     if end and blink():
+        if easy == True:
+            if score > easybestscore:
+                easybestscore = score
+        if medium == True:
+            if score > mediumbestscore:
+                mediumbestscore = score
+        if hard == True:
+            if score > hardbestscore:
+                hardbestscore = score
         gameovertext = font.render("GAME OVER" , True , 'dark red')
         screen.blit(gameovertext, ((screensize - gameovertext.get_width())//2, 250))
         playagaintext = font.render("[SPACE] to Play Again" , True , 'dark red')
         screen.blit(playagaintext, ((screensize - playagaintext.get_width())//2,350))
+
 
 def blink():
     global delaytime2, blinking
@@ -362,6 +382,7 @@ def redo():
     getitem = 0
     itemout = False
     gaineditem = 0
+
 
 
 ############################################################### bunch of variables
@@ -391,6 +412,10 @@ gaineditem = 0
 description = False
 music = True
 pageflip = False
+fireout = False
+easybestscore = 0
+mediumbestscore = 0
+hardbestscore = 0
 
 ############################################################### font stuff
 font = pygame.font.SysFont("terminal",50,True,False)
