@@ -51,7 +51,7 @@ def settingeventprocess():
                 mixer.music.stop()
 
 def descriptioneventprocess():
-    global menu, setting, description
+    global menu, setting, description, pageflip
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
@@ -59,9 +59,20 @@ def descriptioneventprocess():
             if event.key == pygame.K_ESCAPE:
                 description = False
                 menu = True
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            MOUSE_X,MOUSE_Y = pygame.mouse.get_pos()
+            if MOUSE_X >= screensize-70 and MOUSE_X <= screensize and MOUSE_Y >= screensize-70 and MOUSE_Y <= screensize:
+                if pageflip == True:
+                    pageflip = False
+                elif pageflip == False:
+                    pageflip = True
 
 def eventprocess():
-    global easy, medium, hard, playing, menu, end, gaineditem
+    global easy, medium, hard, playing, menu, end, gaineditem, playerspeed
+    if easy == True:
+        playerspeed = 2
+    if easy == False:
+        playerspeed = 3
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -72,13 +83,13 @@ def eventprocess():
                 menu = True
                 redo()
             if event.key == pygame.K_LEFT:
-                move.x = -2
+                move.x -= playerspeed
             if event.key == pygame.K_RIGHT:
-                move.x = 2
+                move.x += playerspeed
             if event.key == pygame.K_UP:
-                move.y = -2
+                move.y -= playerspeed
             if event.key == pygame.K_DOWN:
-                move.y = 2
+                move.y += playerspeed
             if event.key == pygame.K_SPACE:
                 if end:
                     redo()
@@ -124,18 +135,34 @@ def settingoptions():
     screen.blit(text4,(screensize/2-gray.get_width()+5, 350))
     screen.blit(text5,(screensize-gray.get_width()-35, 350))
 
+def rule():
+    screen.blit(nextpage,(430,430))
+    screen.blit(pygame.transform.scale(person,(50,50)),(61,25))
+    screen.blit(pygame.transform.scale(water[0],(50,50)),(61,125))
+    screen.blit(pygame.transform.scale(item,(50,50)),(61,225))
+    screen.blit(pygame.transform.scale(fire,(50,50)),(61,325))
+    screen.blit(pygame.transform.scale(charge1,(50,50)),(61,425))
+
+    screen.blit(text10,(160,40))
+    screen.blit(text11,(160,140))
+    screen.blit(text12,(160,240))
+    screen.blit(text13,(160,340))
+    screen.blit(text14,(160,440))
+
 def explaining():
+    screen.blit(previouspage,(430,430))
     screen.blit(up,(61,10))
     screen.blit(down,(61,61))
     screen.blit(right,(112,61))
     screen.blit(left,(10,61))
     screen.blit(E,(61,160))
     screen.blit(esc,(61,260))
+    screen.blit(space,(61,360))
 
     screen.blit(text6,(185,77))
     screen.blit(text7,(185,275))
     screen.blit(text8,(185,175))
-
+    screen.blit(text9,(185,375))
 ############################################################### sprite
 def personmovement():
     if not end:
@@ -155,22 +182,42 @@ def makerain():
     if end:
         return
     if delay():
-        index = random.randint(0,len(water)-1)
-        if rain[index].y == -1:
-            rain[index].x = random.randint(0,screensize)
-            rain[index].y = 0
+        if hard == False:
+            index = random.randint(0,len(water)-1)
+            if rain[index].y == -1:
+                rain[index].x = random.randint(0,screensize)
+                rain[index].y = 0
+        if hard == True:
+            index = random.randint(0,len(water2)-1)
+            if rain2[index].y == -1:
+                rain2[index].x = random.randint(0,screensize)
+                rain2[index].y = 0
 
 def rainmovement():
     global speed
+    if medium == True:
+        speed = 1
+    if medium == False:
+        speed = 2
     makerain()
-    for i in range(len(water)):
-        if rain[i].y == -1:
-            continue
-        if not end:
-            rain[i].y += speed
-        if rain[i].y > screensize:
-            rain[i].y = 0
-        screen.blit(water[i],rain[i])
+    if hard == False:
+        for i in range(len(water)):
+            if rain[i].y == -1:
+                continue
+            if not end:
+                rain[i].y += speed
+            if rain[i].y > screensize:
+                rain[i].y = 0
+            screen.blit(water[i],rain[i])
+    if hard == True:
+        for i in range(len(water2)):
+            if rain2[i].y == -1:
+                continue
+            if not end:
+                rain2[i].y += speed
+            if rain2[i].y > screensize:
+                rain2[i].y = 0
+            screen.blit(water2[i],rain2[i])
 
 def makeitem():
     if end or itemout == True:
@@ -184,7 +231,7 @@ def itemmovement():
     if not end:
         if easy == True:
             return
-        if itemout == False and Item.y < 0 and getitem != 'fire':
+        if itemout == False and Item.y < 0 and getitem != 'fire' and hard == True:
             items = ['fire',
                      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -193,10 +240,10 @@ def itemmovement():
                      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+                     ]
             getitem = random.choice(items)
+        if hard == False and itemout == False and Item.y < 0:
+            getitem = 'fire'
         if getitem == 'fire':
             makeitem()
             Item.y += 1
@@ -225,19 +272,28 @@ def fireball():
 
 ############################################################### collision
 def fireraincollision():
-    global end
+    global end, score
     if end:
         return
     for area in rain:
-        if area == -1:
+        if area.y == -1:
             continue
         if area.top < Fire.bottom and Fire.top < area.bottom and area.left < Fire.right and area.right > Fire.left:
             area.y = -1
             Fire.y = -40
+            score += 10
+            break
+    for area in rain2:
+        if area.y == -1:
+            continue
+        if area.top < Fire.bottom and Fire.top < area.bottom and area.left < Fire.right and area.right > Fire.left:
+            area.y = -1
+            Fire.y = -40
+            score += 10
             break
 
 def personraincollision():
-    global score,end
+    global end
     if end:
         return
     for area in rain:
@@ -247,7 +303,13 @@ def personraincollision():
             print("OOPS")
             end = True
             break
-    score += 1
+    for area in rain2:
+        if area == -1:
+            continue
+        if area.top < Person.bottom and Person.top < area.bottom and area.left < Person.right and area.right > Person.left:
+            print("OOPS")
+            end = True
+            break
 
 def personitemcollision():
     global itemout, getitem, gaineditem
@@ -291,6 +353,8 @@ def redo():
     score = 0
     for i in range(len(water)):
         rain[i].y = -1
+    for i in range(len(water2)):
+        rain2[i].y = -1
     Fire.y = -40
     Item.y = -40
     Person.centerx = screensize/2
@@ -319,12 +383,14 @@ menu = True
 easy = True
 medium = False
 hard = False
-speed = 1
+speed= 2
+playerspeed = 3
 itemout = False
 getitem = ''
 gaineditem = 0
 description = False
 music = True
+pageflip = False
 
 ############################################################### font stuff
 font = pygame.font.SysFont("terminal",50,True,False)
@@ -336,10 +402,18 @@ text5 = font.render("Music Off",True,"black")
 #bauhaus93 28
 #script 30
 
+
+
 font2 = pygame.font.SysFont("bauhaus93",28,False,False)
 text6 = font2.render("Arrows to Move",True,"Black")
 text7 = font2.render("ESC to Go Back to Menu",True,"Black")
 text8 = font2.render("E to Fire Fireball",True,"Black")
+text9 = font2.render("Space to Restart",True,"Black")
+text10 = font2.render("the character",True,"Black")
+text11 = font2.render("the acid rain",True,"Black")
+text12 = font2.render("the item that gives fireball",True,"Black")
+text13 = font2.render("the fireball",True,"Black")
+text14 = font2.render("the charge of fireball",True,"Black")
 
 ############################################################### image load stuff
 person = pygame.image.load("person.png")
@@ -356,6 +430,17 @@ for i in range(len(water)):
     water[i] = pygame.transform.scale(water[i],(20,20))
     rain[i] = water[i].get_rect()
     rain[i].y = -1
+
+water2 = []
+rain2 = []
+for i in range(50):
+    water2.append((pygame.image.load("water.png")))
+rain2 = [None for i in range(len(water2))]
+for i in range(len(water2)):
+    water2[i] = pygame.transform.scale(water2[i],(30,30))
+    rain2[i] = water2[i].get_rect()
+    rain2[i].y = -1
+
 
 fire = pygame.image.load("fireball.jpg")
 fire = pygame.transform.scale(fire,(25,40))
@@ -385,10 +470,13 @@ right = pygame.image.load("right.png")
 left = pygame.image.load("left.png")
 esc = pygame.image.load("esc.png")
 E = pygame.image.load("E.png")
+space = pygame.image.load("space.png")
+nextpage = pygame.image.load("next page.png")
+previouspage = pygame.image.load("previous page.png")
 
 ############################################################### music
 mixer.init()
-mixer.music.load("(MADE) JUST BEFORE THE EXAM.wav")
+mixer.music.load("fresh wave.wav")
 mixer.music.play(-1)
 
 
@@ -408,7 +496,10 @@ while True:
         pygame.display.flip()
     while description == True:
         screen.fill((200,200,200))
-        explaining()
+        if pageflip == False:
+            rule()
+        elif pageflip == True:
+            explaining()
         descriptioneventprocess()
         pygame.display.flip()
     while playing == True:
@@ -428,4 +519,3 @@ while True:
         text()
         pygame.display.flip()
         clock.tick(100)
-
