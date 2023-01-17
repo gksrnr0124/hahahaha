@@ -1,4 +1,4 @@
-import pygame,random, sys
+import pygame,random, sys, os
 from pygame import Rect, mixer
 
 ############################################################### eventprocess
@@ -106,17 +106,23 @@ def eventprocess():
 
 ############################################################### display
 def settingoptions():
-    global easy,medium,hard,color1,color2,color3, musicoff, musicon
+    global easy,medium,hard,color1,color2,color3, musicoff, musicon, whatlevel
     screen.fill((50,50,50))
     if easy == True:
+        whatlevel = 'easy'
+        get_maxscore(whatlevel,easybestscore)
         color1 = chosen
         color2 = gray
         color3 = gray
     if medium == True:
+        whatlevel = 'medium'
+        get_maxscore(whatlevel, mediumbestscore)
         color1 = gray
         color2 = chosen
         color3 = gray
     if hard == True:
+        whatlevel = 'hard'
+        get_maxscore(whatlevel, hardbestscore)
         color1 = gray
         color2 = gray
         color3 = chosen
@@ -347,12 +353,15 @@ def text():
         if easy == True:
             if score > easybestscore:
                 easybestscore = score
+                set_score(easybestscore, whatlevel)
         if medium == True:
             if score > mediumbestscore:
                 mediumbestscore = score
+                set_score(mediumbestscore, whatlevel)
         if hard == True:
             if score > hardbestscore:
                 hardbestscore = score
+                set_score(hardbestscore, whatlevel)
         gameovertext = font.render("GAME OVER" , True , 'dark red')
         screen.blit(gameovertext, ((screensize - gameovertext.get_width())//2, 250))
         playagaintext = font.render("[SPACE] to Play Again" , True , 'dark red')
@@ -383,6 +392,26 @@ def redo():
     itemout = False
     gaineditem = 0
 
+
+###############################################################
+def get_maxscore(level, bestscore):
+
+    filename = f"{level}bestscore.txt"
+    print(filename)
+    if filename in os.listdir():
+        with open(filename, "r") as file:
+            val = file.read()
+            if val == "":
+                bestscore = 0
+            else:
+                bestscore = int(val)
+    else:
+        bestscore = 0
+    return bestscore
+
+def set_score(bestscore, level):
+    with open(f"{level}bestscore.text", "w") as file:
+        file.write(str(bestscore))
 
 
 ############################################################### bunch of variables
@@ -416,6 +445,7 @@ fireout = False
 easybestscore = 0
 mediumbestscore = 0
 hardbestscore = 0
+whatlevel = ''
 
 ############################################################### font stuff
 font = pygame.font.SysFont("terminal",50,True,False)
