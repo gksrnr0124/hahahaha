@@ -116,7 +116,7 @@ def settingoptions():
         color3 = gray
     if medium == True:
         whatlevel = 'medium'
-        get_maxscore(whatlevel,)
+        get_maxscore(whatlevel)
         color1 = gray
         color2 = chosen
         color3 = gray
@@ -402,16 +402,16 @@ def get_maxscore(level):
         with open(filename, "r") as file:
             val = file.read()
             if whatlevel == 'easy':
-                if val == "":
+                if val == "" or val == 0:
                     easybestscore = 0
                 else:
                     easybestscore = int(val)
-            elif whatlevel == 'medium':
+            elif whatlevel == 'medium' or val == 0:
                 if val == "":
                     mediumbestscore = 0
                 else:
                     mediumbestscore = int(val)
-            elif whatlevel == 'hard':
+            elif whatlevel == 'hard' or val == 0:
                 if val == "":
                     hardbestscore = 0
                 else:
@@ -453,8 +453,8 @@ pageflip = False
 fireout = False
 whatlevel = 'easy'
 easybestscore = get_maxscore(whatlevel)
-mediumbestscore = 0
-hardbestscore = 0
+mediumbestscore = get_maxscore(whatlevel)
+hardbestscore = get_maxscore(whatlevel)
 
 
 ############################################################### font stuff
