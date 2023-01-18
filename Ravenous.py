@@ -110,19 +110,19 @@ def settingoptions():
     screen.fill((50,50,50))
     if easy == True:
         whatlevel = 'easy'
-        get_maxscore(whatlevel,easybestscore)
+        get_maxscore(whatlevel)
         color1 = chosen
         color2 = gray
         color3 = gray
     if medium == True:
         whatlevel = 'medium'
-        get_maxscore(whatlevel, mediumbestscore)
+        get_maxscore(whatlevel,)
         color1 = gray
         color2 = chosen
         color3 = gray
     if hard == True:
         whatlevel = 'hard'
-        get_maxscore(whatlevel, hardbestscore)
+        get_maxscore(whatlevel)
         color1 = gray
         color2 = gray
         color3 = chosen
@@ -328,7 +328,8 @@ def personitemcollision():
         Item.y = -40
         itemout = False
         getitem = ''
-        gaineditem += 1
+        if gaineditem < 2:
+            gaineditem += 1
 
 
 ############################################################### leftover functions
@@ -344,11 +345,11 @@ def text():
     global easybestscore, mediumbestscore, hardbestscore
     screen.blit(font.render(f'score : {score}',True,'blue'),(10,10,0,0))
     if easy == True:
-        screen.blit(font.render(f'bestscore :{easybestscore}',True,'blue'),(10,40,0,0))
+        screen.blit(font.render(f'bestscore : {easybestscore}',True,'blue'),(10,40,0,0))
     if medium == True:
-        screen.blit(font.render(f'bestscore :{mediumbestscore}',True,'blue'),(10,40,0,0))
+        screen.blit(font.render(f'bestscore : {mediumbestscore}',True,'blue'),(10,40,0,0))
     if hard == True:
-        screen.blit(font.render(f'bestscore :{hardbestscore}',True,'blue'),(10,40,0,0))
+        screen.blit(font.render(f'bestscore : {hardbestscore}',True,'blue'),(10,40,0,0))
     if end and blink():
         if easy == True:
             if score > easybestscore:
@@ -394,23 +395,31 @@ def redo():
 
 
 ###############################################################
-def get_maxscore(level, bestscore):
-
+def get_maxscore(level):
+    global easybestscore, mediumbestscore, hardbestscore
     filename = f"{level}bestscore.txt"
-    print(filename)
     if filename in os.listdir():
         with open(filename, "r") as file:
             val = file.read()
-            if val == "":
-                bestscore = 0
-            else:
-                bestscore = int(val)
-    else:
-        bestscore = 0
-    return bestscore
+            if whatlevel == 'easy':
+                if val == "":
+                    easybestscore = 0
+                else:
+                    easybestscore = int(val)
+            elif whatlevel == 'medium':
+                if val == "":
+                    mediumbestscore = 0
+                else:
+                    mediumbestscore = int(val)
+            elif whatlevel == 'hard':
+                if val == "":
+                    hardbestscore = 0
+                else:
+                    hardbestscore = int(val)
+
 
 def set_score(bestscore, level):
-    with open(f"{level}bestscore.text", "w") as file:
+    with open(f"{level}bestscore.txt", "w") as file:
         file.write(str(bestscore))
 
 
@@ -442,10 +451,11 @@ description = False
 music = True
 pageflip = False
 fireout = False
-easybestscore = 0
+whatlevel = 'easy'
+easybestscore = get_maxscore(whatlevel)
 mediumbestscore = 0
 hardbestscore = 0
-whatlevel = ''
+
 
 ############################################################### font stuff
 font = pygame.font.SysFont("terminal",50,True,False)
